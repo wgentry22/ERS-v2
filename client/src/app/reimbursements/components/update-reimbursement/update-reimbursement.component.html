@@ -1,0 +1,39 @@
+<h1 mat-dialog-title>Update Reimbursement</h1>
+<div mat-dialog-content>
+  <form [formGroup]="form" novalidate>
+    <div class="form-content">
+      <mat-form-field appearance="outline" color="primary">
+        <mat-label>Amount</mat-label>
+        <input type="number" matInput formControlName="amount">
+      </mat-form-field>
+      <div class="container-row">
+        <mat-form-field appearance="outline" color="primary" class="form-row-item">
+          <mat-label>Reimbursement Type</mat-label>
+          <mat-select formControlName="type" required>
+            <mat-option *ngFor="let type of reimbursementTypes; let i = index" [value]="i">{{ type }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" color="primary" class="form-row-item">
+          <mat-label>Expense Date</mat-label>
+          <input matInput [matDatepicker]="picker" formControlName="expenseDate">
+          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker
+            color="primary"
+            startView="month"
+            [startAt]="form.get('expenseDate').value"
+            #picker
+          >
+          </mat-datepicker>
+        </mat-form-field>
+      </div>
+      <mat-form-field appearance="outline" color="primary">
+        <mat-label>Description</mat-label>
+        <textarea matInput formControlName="description"></textarea>
+      </mat-form-field>
+    </div>
+  </form>
+</div>
+<div mat-dialog-actions class="form-actions">
+  <button mat-raised-button type="button" color="primary" [mat-dialog-close]="updatedReimbursement()">Update</button>
+  <button mat-raised-button type="button" color="warn" (click)="onClose()">Cancel</button>
+</div>

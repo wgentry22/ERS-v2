@@ -1,0 +1,44 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title *ngIf="reimbursements?.length > 0" [matBadge]="badge$ | async">{{ currentUser?.username }}'s Reimbursements</mat-card-title>
+    <mat-card-title *ngIf="reimbursements?.length === 0" matBadge="0">{{ currentUser?.username }}'s Reimbursements</mat-card-title>
+  </mat-card-header>
+  <mat-card-content class="reimbursements-body">
+    <mat-tab-group (selectedIndexChange)="handleTabChange($event)" (selectedTabChange)="handleTabChange($event)" >
+      <mat-tab label="Pending">
+        <ng-container *ngIf="reimbursements?.length !== 0 else noPending">
+          <app-reimbursement-card-group
+            [data]="reimbursements"
+            (onReimbursementUpdate)="handleReimbursementUpdate($event)"
+          >
+          </app-reimbursement-card-group>
+        </ng-container>
+        <ng-template #noPending>
+          No Pending Reimbursements
+        </ng-template>
+      </mat-tab>
+      <mat-tab label="Approved">
+        <ng-container *ngIf="reimbursements?.length !== 0 else noApproved">
+          <app-reimbursement-card-group
+            [data]="reimbursements"
+          >
+          </app-reimbursement-card-group>
+        </ng-container>
+        <ng-template #noApproved>
+          No Approved Reimbursements
+        </ng-template>
+      </mat-tab>
+      <mat-tab label="Rejected">
+        <ng-container *ngIf="reimbursements?.length !== 0 else noRejected">
+          <app-reimbursement-card-group
+            [data]="reimbursements"
+          >
+          </app-reimbursement-card-group>
+        </ng-container>
+        <ng-template #noRejected>
+          No Rejected Reimbursements
+        </ng-template>
+      </mat-tab>
+    </mat-tab-group>
+  </mat-card-content>
+</mat-card>

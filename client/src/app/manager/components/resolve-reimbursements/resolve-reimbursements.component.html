@@ -1,0 +1,30 @@
+<div class="space-around top-space-sm">
+  <div class="wide-xl">
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Resolve Reimbursements</mat-card-title>
+        <span class="take-remaining-space"></span>
+        <mat-slide-toggle color="accent" (change)="handleToggle()">Show Resolved</mat-slide-toggle>
+      </mat-card-header>
+      <mat-card-content *ngIf="!(isLoading | async) else loading">
+        <app-reimbursement-table
+          [dataSource]="shouldDisplayPending ? refreshDataSource(pending$ | async) : refreshDataSource(resolved$ | async)"
+          [pending]="shouldDisplayPending"
+          [headers]="getTableHeaders()"
+          (onReimbursementApprove)="handleApproval($event)"
+          (onReimbursementReject)="handleRejection($event)"
+        >
+        </app-reimbursement-table>
+        <ng-container *ngIf="shouldDisplayPending && (pending$ | async)?.length === 0">
+          No Reimbursements Pending Approval
+        </ng-container>
+        <ng-container *ngIf="!shouldDisplayPending && (resolved$ | async)?.length === 0">
+          No Reimbursements Records to Review
+        </ng-container>
+      </mat-card-content>
+      <ng-template #loading>
+        <mat-progress-bar mode="indeterminate" color="accent"></mat-progress-bar>
+      </ng-template>
+    </mat-card>
+  </div>
+</div>

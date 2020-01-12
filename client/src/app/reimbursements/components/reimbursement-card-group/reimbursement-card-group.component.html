@@ -1,0 +1,10 @@
+<mat-grid-list cols="2" gutterSize="5px" rowHeight="2:1" *ngIf="data?.length > 0">
+  <mat-grid-tile *ngFor="let element of data" class="reimbursement-card-grid">
+    <app-reimbursement-card
+      [data]="element"
+      [canResolve]="canResolve"
+      (onReimbursementUpdate)="handleReimbursementUpdate($event)"
+    >
+    </app-reimbursement-card>
+  </mat-grid-tile>
+</mat-grid-list>

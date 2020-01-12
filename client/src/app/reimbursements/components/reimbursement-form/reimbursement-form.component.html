@@ -1,0 +1,36 @@
+<mat-card class="reimbursement-form">
+  <ng-container>
+    <form [formGroup]="form" novalidate>
+      <mat-card-header>
+        <mat-card-title>Request New Reimbursement</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="form-content">
+          <mat-form-field appearance="outline" color="primary">
+            <mat-label>Amount</mat-label>
+            <input type="number" matInput formControlName="amount">
+          </mat-form-field>
+          <mat-form-field appearance="outline" color="primary" class="form-row-item">
+            <mat-label>Reimbursement Type</mat-label>
+            <mat-select formControlName="type" required>
+              <mat-option *ngFor="let type of types; let i = index" [value]="i">{{ type }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline" color="primary" class="form-row-item">
+            <mat-label>Expense Date</mat-label>
+            <input matInput [matDatepicker]="picker" formControlName="expenseDate">
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker color="primary" startView="month" [startAt]="form.get('expenseDate').value" #picker></mat-datepicker>
+          </mat-form-field>
+          <mat-form-field appearance="outline" color="primary">
+            <mat-label>Description</mat-label>
+            <textarea matInput formControlName="description"></textarea>
+          </mat-form-field>
+        </div>
+      </mat-card-content>
+      <mat-card-actions class="form-actions">
+        <button mat-raised-button type="button" color="primary" [disabled]="isFormInvalid()" (click)="create()" >Request</button>
+      </mat-card-actions>
+    </form>
+  </ng-container>
+</mat-card>

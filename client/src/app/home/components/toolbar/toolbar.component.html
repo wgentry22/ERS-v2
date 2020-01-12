@@ -1,0 +1,11 @@
+<mat-toolbar color="primary">
+  <span color="primary" [routerLink]="['/home']">Employee Reimbursement System</span>
+  <span class="take-remaining-space"></span>
+  <span *ngIf="canResolve(currentUser)" color="accent" class="resolve-link" (click)="loadManagerModule()">Manage</span>
+  <span class="take-remaining-space"></span>
+  <span>Hello, {{ currentUser?.username }}</span>
+  <span class="sign-out-icon">
+    <button mat-mini-fab (click)="attemptLogout()"><mat-icon>exit_to_app</mat-icon></button>
+  </span>
+</mat-toolbar>
+<mat-progress-bar *ngIf="isLoadingManagerModule" color="primary" mode="indeterminate"></mat-progress-bar>

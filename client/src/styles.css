@@ -1,0 +1,124 @@
+/* You can add global styles to this file, and also import other style files */
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; background-color: darkgray}
+
+.container-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.container-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.full-height {
+  height: 100%;
+}
+
+.take-remaining-space {
+  flex: 1 1 auto;
+}
+
+.top-space-sm {
+  margin-top: 1%;
+  padding-top: 0.5%;
+}
+
+.top-space {
+  margin-top: 10%;
+  padding-top: 5%;
+}
+
+.wide-xl {
+  width: 75%;
+}
+
+.wide-lg {
+  width: 60%;
+}
+
+.wide-md {
+  width: 45%;
+}
+
+.wide-sm {
+  width: 30%;
+}
+
+.no-margin {
+  margin: 0px;
+}
+
+.space-between {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.space-around {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: flex-start;
+}
+
+.space-evenly {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items: flex-start;
+}
+
+.column-stretch {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.flex-inline {
+  display: inline-flex;
+}
+
+.pull-left {
+  float: left;
+}
+
+.form-content {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.form-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.form-row-item {
+  width: 100%;
+}
+
+.form-actions {
+  margin: 0 0 0 8px;
+}
+
+.success {
+  background-color: #27ff09;
+  color: black;
+}
+
+.failure {
+  background-color: #ff0000;
+  color: black;
+}

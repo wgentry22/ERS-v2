@@ -1,0 +1,18 @@
+<div class="reimbursement-card-grid-item">
+  <mat-card>
+    <mat-card-header>
+      <div mat-card-avatar><app-reimbursement-card-avatar [status]="data?.status" [type]="data?.type"></app-reimbursement-card-avatar></div>
+      <mat-card-title>Reimbursement {{ data?.id }}</mat-card-title>
+      <mat-card-subtitle>Created on {{ data?.expenseDate | date:'short' }}</mat-card-subtitle>
+      <mat-card-subtitle>Requesting {{ data?.amount | currency:"USD" }}</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <p>{{ data?.description }}</p>
+    </mat-card-content>
+    <mat-card-actions align="end">
+      <button *ngIf="canResolve" mat-raised-button color="green">Approve</button>
+      <button *ngIf="canResolve" mat-raised-button color="red">Reject</button>
+      <button *ngIf="!canResolve" mat-raised-button color="accent" class="button-actions" (click)="handleReimbursementUpdate()">Update</button>
+    </mat-card-actions>
+  </mat-card>
+</div>

@@ -1,0 +1,10 @@
+<div class="container-column" @dramaticEntrance>
+  <app-toolbar
+    (onLogOut)="handleLogout()"
+    [currentUser]="currentUser$ | async"
+  >
+  </app-toolbar>
+  <div [@childRouteAnimations]="prepareChildRouteAnimation(childOutlet)">
+    <router-outlet #childOutlet="outlet"></router-outlet>
+  </div>
+</div>

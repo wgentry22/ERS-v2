@@ -1,0 +1,12 @@
+<div class="container-row" @dramaticEntrance>
+  <div class="wide-md">
+    <app-login-form
+      [error]="errorMessage$"
+      (onAttemptAuthentication)="handleAuthenticationAttempt($event)"
+    >
+    </app-login-form>
+    <ng-container *ngIf="isAttemptingAuthentication$ | async">
+      <mat-progress-bar color="primary" mode="indeterminate"></mat-progress-bar>
+    </ng-container>
+  </div>
+</div>

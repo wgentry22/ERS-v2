@@ -1,0 +1,27 @@
+<mat-card class="top-space">
+  <ng-container>
+    <form [formGroup]="loginForm" novalidate class="login-form" (ngSubmit)="handleAuthenticationAttempt()">
+      <mat-card-header>
+        <mat-card-title>ERS Sign In</mat-card-title>
+        <mat-card-subtitle><button mat-icon-button class="pull-left" color="primary" type="button" routerLink="/register">Register <mat-icon color="primary">create</mat-icon></button></mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="login-form-content">
+          <mat-form-field appearance="outline" color="primary">
+            <mat-label>Username</mat-label>
+            <input type="text" matInput formControlName="username">
+          </mat-form-field>
+          <mat-form-field appearance="outline" color="primary">
+            <mat-label>Password</mat-label>
+            <input type="password" matInput autocomplete="false" formControlName="password">
+          </mat-form-field>
+          <small *ngIf="error$ | async as error" class="mat-typography" [ngStyle]="{'color': '#ff0000'}">{{ error }}</small>
+        </div>
+      </mat-card-content>
+      <mat-card-actions class="login-form-actions">
+        <button mat-raised-button type="submit" color="primary" [disabled]="!isFormValid()">Submit</button>
+        <button mat-raised-button type="reset" color="warn">Reset</button>
+      </mat-card-actions>
+    </form>
+  </ng-container>
+</mat-card>

@@ -1,0 +1,13 @@
+<div class="container-row" @dramaticEntranceFromRight>
+  <div class="wide-md">
+    <app-initial-registration-form
+      (onFormSubmit)="handleFormSubmit($event)"
+      (onUsernameCheck)="handleCheckUsernameAvailability($event)"
+      [hasUsernameBeenChecked]="hasUsernameBeenChecked$ | async"
+      [isCheckingUsername]="isCheckingUsername$ | async"
+      [isUsernameAvailable]="isUsernameAvailable$ | async"
+      [registrationMessage]="registrationMessage$ | async"
+    >
+    </app-initial-registration-form>
+  </div>
+</div>

@@ -1,0 +1,16 @@
+<div class="space-evenly">
+  <div class="wide-lg">
+    <app-reimbursements-list
+      [currentUser]="currentUser"
+      [reimbursements]="reimbursements$ | async"
+      (onTabChange)="handleTabChange($event)"
+      (onReimbursementUpdate)="handleReimbursementUpdate($event)"
+    >
+    </app-reimbursements-list>
+  </div>
+  <div class="wide-sm">
+    <app-reimbursement-form
+    >
+    </app-reimbursement-form>
+  </div>
+</div>
