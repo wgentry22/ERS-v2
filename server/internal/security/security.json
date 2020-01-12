@@ -1,0 +1,4 @@
+{
+  "keyPath": "/usr/local/keys/ers",
+  "roleHierarchy": ["ROLE_MANAGER", "ROLE_EMPLOYEE", "ROLE_ANONYMOUS"]
+}

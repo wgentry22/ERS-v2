@@ -2,14 +2,14 @@ package handlers
 
 import (
   "encoding/json"
-  "github.com/wgentry2/ers-ngrx/server/dao"
   "github.com/wgentry2/ers-ngrx/server/internal/domain/dto"
+  "github.com/wgentry2/ers-ngrx/server/service"
   "io/ioutil"
   "net/http"
 )
 
 type authHandler struct {
-  loginDao dao.LoginDao
+  loginService service.LoginService
 }
 
 type AuthenticationHandler interface {
@@ -29,13 +29,13 @@ func (handler *authHandler) AttemptAuthentication(w http.ResponseWriter, r *http
     w.WriteHeader(http.StatusUnprocessableEntity)
     return
   }
-  details := handler.loginDao.AttemptAuthentication(r.Context(), form)
+  token := handler.loginService.AttemptAuthentication(r.Context(), form)
   if r := recover(); r != nil {
     w.WriteHeader(http.StatusUnauthorized)
     return
   }
   w.Header().Set("Content-Type", "application/json")
-  json.NewEncoder(w).Encode(&details)
+  json.NewEncoder(w).Encode(&token)
 }
 
 func (handler *authHandler) Path() string {
@@ -43,5 +43,5 @@ func (handler *authHandler) Path() string {
 }
 
 func Authentication() AuthenticationHandler {
-  return &authHandler{loginDao:dao.Login()}
+  return &authHandler{loginService:service.Login()}
 }

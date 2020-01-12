@@ -8,6 +8,13 @@ type User struct {
   PwdHash []byte `gorm:"not_null"`
 }
 
+type Role struct {
+  gorm.Model
+  Name string
+  UserId uint
+  User User
+}
+
 type UserDetails struct {
   gorm.Model
   Position string
@@ -15,6 +22,6 @@ type UserDetails struct {
   Email string
   FirstName string
   LastName string
-  UserId int
+  UserId uint
   User User
 }

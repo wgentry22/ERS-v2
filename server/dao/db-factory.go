@@ -5,6 +5,7 @@ import (
   "fmt"
   "github.com/jinzhu/gorm"
   _ "github.com/jinzhu/gorm/dialects/mysql"
+  "github.com/wgentry2/ers-ngrx/server/internal/domain/model"
   "go.elastic.co/apm/module/apmgorm"
   "log"
   "os"
@@ -25,7 +26,12 @@ func init() {
   if err != nil {
     log.Fatalf("Failed to connect to database, %+v", err)
   }
+  runMigrations(database)
   db = database
+}
+
+func runMigrations(db *gorm.DB) {
+  db.AutoMigrate(model.User{}, model.Role{}, model.UserDetails{})
 }
 
 func getEnv(key string, defaultValue string) string {
