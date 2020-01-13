@@ -2,7 +2,6 @@ package security
 
 import (
   "encoding/json"
-  "fmt"
   "github.com/sirupsen/logrus"
   "io/ioutil"
   "os"
@@ -33,7 +32,6 @@ func init() {
   }
 
   config.RoleHierarchy = generateRoleHierarchy(config.Roles)
-  fmt.Printf("%+v\n", config.RoleHierarchy)
 }
 
 func handleErrorIfFileNotFound(filepath string, err error) {
@@ -63,7 +61,6 @@ func IsRoleReachable(actual, desired string) bool {
   isReachable := false
   if roles, ok := config.RoleHierarchy[actual]; ok {
     for _, role := range roles {
-      fmt.Printf("Is %s equal to %s", actual, role)
       if role == desired {
         isReachable = true
       }

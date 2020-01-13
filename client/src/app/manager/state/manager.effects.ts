@@ -41,7 +41,7 @@ export class ManagerEffects {
       return this.reimbursementService.resolveReimbursement(action.reimbursement).pipe(
         map((reimbursement: Reimbursement) => new ResolveReimbursementSuccessAction(reimbursement)),
         catchError(() => of(new ResolveReimbursementFailureAction()))
-      )
+      );
     }),
   );
 

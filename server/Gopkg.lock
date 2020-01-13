@@ -50,14 +50,6 @@
   version = "v1.5.0"
 
 [[projects]]
-  digest = "1:582b704bebaa06b48c29b0cec224a6058a09c86883aaddabde889cd1a5f73e1b"
-  name = "github.com/google/uuid"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "0cd6bf5da1e1c83f8b45653022c74f71af0538a4"
-  version = "v1.1.1"
-
-[[projects]]
   digest = "1:cbec35fe4d5a4fba369a656a8cd65e244ea2c743007d8f6c1ccb132acf9d1296"
   name = "github.com/gorilla/mux"
   packages = ["."]
@@ -137,7 +129,7 @@
   version = "v1.4.2"
 
 [[projects]]
-  digest = "1:0e3de7bcc9dd8e9cc740ce96920e237e4460032840d4eb61462271f49905bdf1"
+  digest = "1:ce3228f54682ca3a369f5c7fea9e5b263b2cb78df6882172ebca456b5b1c3596"
   name = "go.elastic.co/apm"
   packages = [
     ".",
@@ -157,7 +149,9 @@
     "internal/sqlutil",
     "internal/wildcard",
     "model",
+    "module/apmgorilla",
     "module/apmgorm",
+    "module/apmhttp",
     "module/apmsql",
     "stacktrace",
     "transport",
@@ -210,11 +204,12 @@
   analyzer-version = 1
   input-imports = [
     "github.com/dgrijalva/jwt-go",
-    "github.com/google/uuid",
     "github.com/gorilla/mux",
     "github.com/jinzhu/gorm",
     "github.com/jinzhu/gorm/dialects/mysql",
     "github.com/sirupsen/logrus",
+    "go.elastic.co/apm",
+    "go.elastic.co/apm/module/apmgorilla",
     "go.elastic.co/apm/module/apmgorm",
     "golang.org/x/crypto/bcrypt",
   ]

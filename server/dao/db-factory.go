@@ -31,7 +31,7 @@ func init() {
 }
 
 func runMigrations(db *gorm.DB) {
-  db.AutoMigrate(model.User{}, model.Role{}, model.UserDetails{})
+  db.AutoMigrate(model.User{}, model.Role{}, model.UserDetails{}, model.Reimbursement{})
 }
 
 func getEnv(key string, defaultValue string) string {

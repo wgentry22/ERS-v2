@@ -34,7 +34,7 @@ export interface Reimbursement {
   type?: number;
   expenseDate?: Date;
   resolutionDate?: Date;
-  status?: number
+  status?: number;
   createdBy?: string;
   resolvedBy?: string;
 }
