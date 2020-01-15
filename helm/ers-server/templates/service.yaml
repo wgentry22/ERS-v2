@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ers-server-svc
+  namespace: ers
+  labels:
+    app: ers
+    tier: service
+spec:
+  ports:
+    - port: 8080
+      name: server-svc-port
+      targetPort: ers-server-port
+  selector:
+    app: ers
+    tier: service

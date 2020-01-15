@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ers-mysql-svc
+  namespace: ers
+  labels:
+    app: ers
+    tier: data
+spec:
+  ports:
+    - port: 3306
+      name: mysql-svc-port
+      targetPort: ers-mysql-port
+  selector:
+    app: ers
+    tier: data
