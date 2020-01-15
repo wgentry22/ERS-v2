@@ -1,6 +1,8 @@
 package model
 
-import "github.com/jinzhu/gorm"
+import (
+  "github.com/jinzhu/gorm"
+)
 
 type ReimbursementType int
 
@@ -25,8 +27,8 @@ type Reimbursement struct {
   Amount float64
   Description string
   Type ReimbursementType
-  ExpenseDate uint
-  ResolutionDate uint
+  ExpenseDate int64
+  ResolutionDate int64
   Status ReimbursementStatus
   CreatedBy string
   ResolvedBy string

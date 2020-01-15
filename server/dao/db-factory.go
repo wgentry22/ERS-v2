@@ -18,7 +18,7 @@ var (
   username = getEnv("MYSQL_USER", "ers-admin")
   password = getEnv("MYSQL_PASSWORD", "Password123!")
   database = getEnv("MYSQL_DATABASE", "ers_ngrx")
-  connectionString = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", username, password, host, port, database)
+  connectionString = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local", username, password, host, port, database)
 )
 
 func init() {

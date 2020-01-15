@@ -8,6 +8,7 @@ import (
   "github.com/wgentry2/ers-ngrx/server/internal/domain/dto"
   "github.com/wgentry2/ers-ngrx/server/internal/domain/model"
   "golang.org/x/crypto/bcrypt"
+  "strings"
 )
 
 type registrationService struct {
@@ -31,12 +32,16 @@ func (service *registrationService) AttemptRegistration(ctx context.Context, for
   userDetails := model.UserDetails{
     Position:   form.Position,
     Department: form.Department,
-    Email:      fmt.Sprintf("%s.%s@ers.io", form.Firstname, form.Lastname),
+    Email:      formatEmail(form),
     FirstName:  form.Firstname,
     LastName:   form.Lastname,
   }
 
   return service.registrationDao.AttemptRegistration(ctx, user, userDetails)
+}
+
+func formatEmail(form dto.RegistrationForm) string {
+  return fmt.Sprintf("%s.%s@ers.io", strings.ToLower(form.Firstname), strings.ToLower(form.Lastname))
 }
 
 func Registration() RegistrationService {

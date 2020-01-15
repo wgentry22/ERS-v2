@@ -7,6 +7,7 @@ import (
   "github.com/sirupsen/logrus"
   "github.com/wgentry2/ers-ngrx/server/internal/domain/dto"
   "github.com/wgentry2/ers-ngrx/server/internal/domain/model"
+  "time"
 )
 
 type reimbursementDao struct {}
@@ -31,7 +32,7 @@ func (dao *reimbursementDao) FindAll(ctx context.Context) []dto.ReimbursementDto
 func (dao *reimbursementDao) FindMine(ctx context.Context) []dto.ReimbursementDto {
   var reimbursements []dto.ReimbursementDto
   username, _ := ctx.Value("username").(string)
-  if err := withContext(ctx).Table("reimbursements").Find(&reimbursements, "username = ?", username).Error; err != nil {
+  if err := withContext(ctx).Table("reimbursements").Joins("INNER JOIN users on users.id = reimbursements.user_id AND users.username = ?", username).Find(&reimbursements).Error; err != nil {
     logrus.Info("Failed to execute FIND MINE query for %s", username)
     return make([]dto.ReimbursementDto, 0)
   }
@@ -105,7 +106,7 @@ func (dao *reimbursementDao) Resolve(ctx context.Context, dto dto.ReimbursementD
     Description: dto.Description,
     ExpenseDate: dto.ExpenseDate,
     ResolvedBy:  dto.ResolvedBy,
-    ResolutionDate: dto.ResolutionDate,
+    ResolutionDate: time.Now().Unix(),
     Status:      dto.Status,
   }).Error; err != nil && ok {
     logrus.Infof("Failed to update %s's reimbursement: %+v", username, reimbursement)

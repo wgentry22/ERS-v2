@@ -2,7 +2,6 @@ package handlers
 
 import (
   "encoding/json"
-  "fmt"
   "github.com/sirupsen/logrus"
   "github.com/wgentry2/ers-ngrx/server/internal/domain/dto"
   "github.com/wgentry2/ers-ngrx/server/service"
@@ -58,7 +57,7 @@ func (handler *reimbursementHandler) Create(w http.ResponseWriter, r *http.Reque
     var form dto.ReimbursementForm
     err := json.Unmarshal(body, &form)
     if err != nil {
-      logrus.Info("Failed to marshal request body into dto.ReimbursementForm")
+      logrus.Infof("Failed to marshal request body into dto.ReimbursementForm: %+v\n", err)
       w.WriteHeader(http.StatusUnprocessableEntity)
     } else {
       created := handler.reimbursementService.Create(r.Context(), form)
@@ -110,7 +109,7 @@ func (handler *reimbursementHandler) Resolve(w http.ResponseWriter, r *http.Requ
 
 func recoverFromUsernameNotInRequestContext(w http.ResponseWriter) {
   if r := recover(); r != nil {
-    fmt.Printf("Recovered from %+v", r)
+    logrus.Infof("Recovery from Username not in Request Context: %+v", r)
     w.WriteHeader(http.StatusForbidden)
     return
   }

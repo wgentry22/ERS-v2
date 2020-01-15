@@ -7,7 +7,7 @@ import {environment} from "../environments/environment";
 export class ErsRequestInterceptor implements HttpInterceptor {
 
   private headers: HttpHeaders = new HttpHeaders({
-    "Access-Control-Allow-Headers": "DNT, X-CustomHeader, Keep-Alive, User-Agent, X-Requested-With, If-Modified-Since, Cache-Control, Content-Type, Authorization, Access-Control-Allow-Origin, Access-Control-Allow-Methods, Access-Control-Allow-Credential, Access-Control-Allow-Headers",
+    "Access-Control-Allow-Headers": "DNT, X-CustomHeader, Keep-Alive, User-Agent, X-Requested-With, If-Modified-Since, Cache-Control, Content-Type, Authorization, Access-Control-Allow-Origin, Access-Control-Allow-Methods, Access-Control-Allow-Credentials, Access-Control-Allow-Headers",
     "Access-Control-Allow-Origin": environment.corsUrl,
     "Accept": "application/json",
     "Content-Type": "application/json"

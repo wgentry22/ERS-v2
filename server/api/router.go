@@ -14,6 +14,7 @@ var authentication handlers.AuthenticationHandler
 var registration handlers.RegistrationHandler
 var healthCheck handlers.HealthCheckHandler
 var reimbursement handlers.ReimbursementHandler
+var userInfo handlers.UserInfoHandler
 
 func init() {
   router = mux.NewRouter()
@@ -21,6 +22,7 @@ func init() {
   registration = handlers.Registration()
   healthCheck = handlers.HealthCheck()
   reimbursement = handlers.Reimbursement()
+  userInfo = handlers.UserInfo()
   bootstrap(router)
 }
 
@@ -28,12 +30,21 @@ func bootstrap(router *mux.Router) {
   router.HandleFunc(authentication.Path(), middleware.Cors(authentication.AttemptAuthentication)).Methods(http.MethodPost, http.MethodOptions)
   router.HandleFunc(registration.Path(), middleware.Cors(registration.AttemptRegistration)).Methods(http.MethodPost, http.MethodOptions)
   router.HandleFunc(healthCheck.Path(), healthCheck.HealthCheck).Methods(http.MethodGet)
-  router.HandleFunc(reimbursement.Path() + "/mine", middleware.HasRole(token.EmployeeRole, middleware.Cors(reimbursement.FindMine))).Methods(http.MethodGet)
-  router.HandleFunc(reimbursement.Path(), middleware.HasRole(token.EmployeeRole, middleware.Cors(reimbursement.Create))).Methods(http.MethodPost, http.MethodOptions)
-  router.HandleFunc(reimbursement.Path(), middleware.HasRole(token.EmployeeRole, middleware.Cors(reimbursement.Update))).Methods(http.MethodPatch, http.MethodOptions)
-  router.HandleFunc(reimbursement.Path(), middleware.HasRole(token.ManagerRole, middleware.Cors(reimbursement.FindAll))).Methods(http.MethodGet)
-  router.HandleFunc(reimbursement.Path(), middleware.HasRole(token.ManagerRole, middleware.Cors(reimbursement.Resolve))).Methods(http.MethodPut, http.MethodOptions)
+  router.HandleFunc(reimbursement.Path() + "/mine", requiresRole(token.EmployeeRole, reimbursement.FindMine)).Methods(http.MethodGet, http.MethodOptions)
+  router.HandleFunc(reimbursement.Path(), requiresRole(token.EmployeeRole, reimbursement.Create)).Methods(http.MethodPost, http.MethodOptions)
+  router.HandleFunc(reimbursement.Path(), requiresRole(token.EmployeeRole, reimbursement.Update)).Methods(http.MethodPatch, http.MethodOptions)
+  router.HandleFunc(reimbursement.Path(), requiresRole(token.ManagerRole, reimbursement.FindAll)).Methods(http.MethodGet, http.MethodOptions)
+  router.HandleFunc(reimbursement.Path(), requiresRole(token.ManagerRole, reimbursement.Resolve)).Methods(http.MethodPut, http.MethodOptions)
+  router.HandleFunc(userInfo.Path(), requiresToken(userInfo.RetrieveUserInfo)).Methods(http.MethodGet, http.MethodOptions)
   apmgorilla.Instrument(router)
+}
+
+func requiresToken(next http.HandlerFunc) http.HandlerFunc {
+  return middleware.Cors(middleware.RequiresToken(next))
+}
+
+func requiresRole(role string, next http.HandlerFunc) http.HandlerFunc {
+  return middleware.Cors(middleware.RequiresToken(middleware.HasRole(role, next)))
 }
 
 func Router() *mux.Router {
