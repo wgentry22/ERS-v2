@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kibana
+  namespace: ers
+spec:
+  selector:
+    matchLabels:
+      app: es-cluster
+      tier: apm
+  template:
+    metadata:
+      labels:
+        app: es-cluster
+        tier: apm
+    spec:
+      containers:
+        - name: ers-kibana
+          image: docker.elastic.co/kibana/kibana:7.4.2
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: true
+            runAsUser: 1000
+          ports:
+            - containerPort: 5601
+              name: kibana-port
+          env:
+            - name: ELASTICSEARCH_HOSTS
+              value: http://elasticsearch.ers.svc.cluster.local:9200

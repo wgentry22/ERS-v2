@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: elasticsearch
+  namespace: ers
+spec:
+  clusterIP: None
+  selector:
+    app: es-cluster
+    tier: apm
+  ports:
+    - port: 9300
+      name: transport
+      targetPort: es-transport
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: elasticsearch-lb
+  namespace: ers
+spec:
+  selector:
+    app: es-cluster
+    tier: apm
+  ports:
+    - port: 80
+      targetPort: es-http
+      name: http
+

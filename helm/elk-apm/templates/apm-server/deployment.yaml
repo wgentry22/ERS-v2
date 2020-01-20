@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apm-server
+  namespace: ers
+spec:
+  selector:
+    matchLabels:
+      app: es-cluster
+      tier: apm
+  template:
+    metadata:
+      labels:
+        app: es-cluster
+        tier: apm
+    spec:
+      containers:
+        - name: apm-server
+          image: docker.elastic.co/apm/apm-server:7.4.2
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: true
+            runAsUser: 1000
+            capabilities:
+              add:
+                - IPC_LOCK
+                - SYS_RESOURCE
+                - NET_RAW
+                - NET_ADMIN
+          ports:
+            - containerPort: 8200
+              name: apm-server-port
+          volumeMounts:
+            - mountPath: /usr/share/apm-server/apm-server.yml
+              name: apm-config
+              subPath: apm-server.yml
+              readOnly: true
+      volumes:
+        - name: apm-config
+          configMap:
+            name: apm-server-config
+

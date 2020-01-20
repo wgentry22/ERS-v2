@@ -1,0 +1,12 @@
+mysql:
+  host: ers-mysql-svc
+  port: "3306"
+db:
+  user: ers-ngrx
+  password: Password123!
+  name: ers
+  useRandomRootPwd: "true"
+apm:
+  url: "http://apm-server.ers.svc.cluster.local:8200"
+  serviceName: "ERS Server"
+

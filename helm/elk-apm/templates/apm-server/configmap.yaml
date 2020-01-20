@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: apm-server-config
+  namespace: ers
+data:
+  apm-server.yml: |
+    apm-server:
+      host: "0.0.0.0:8200"
+      setup.dashboards.enabled: true
+      rum:
+        enabled: true
+        allow_origins: ['*']
+    kibana:
+      enabled: true
+      host: "kibana-svc.ers.svc.cluster.local:80"
+    output.elasticsearch:
+      index: "apm-server-%{+yyyy.MM.dd}"
+      hosts: ["elasticsearch.ers.svc.cluster.local:9200"]
+    setup.template.name: "apm-server"
+    setup.template.pattern: "apm-server-*"

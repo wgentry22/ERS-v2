@@ -1,3 +1,0 @@
-db:
-  host: ers-mysql-svc
-  port: "3306"

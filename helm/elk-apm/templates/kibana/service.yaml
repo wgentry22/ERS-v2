@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: kibana-svc
+  namespace: ers
+spec:
+  ports:
+    - port: 80
+      targetPort: kibana-port
+      name: kibana-svc-port
+  selector:
+    tier: apm
+    app: es-cluster

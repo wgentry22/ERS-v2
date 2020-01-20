@@ -53,11 +53,33 @@ spec:
                 secretKeyRef:
                   key: MYSQL_DATABASE
                   name: mysql-secrets
+            - name: SECURITY_CONFIG_JSON
+              value: /etc/ers/security.json
+          envFrom:
+            - configMapRef:
+                name: server-env
           readinessProbe:
             httpGet:
               port: 8080
               path: /healthz
-            initialDelaySeconds: 30
+            initialDelaySeconds: 10
             periodSeconds: 15
             successThreshold: 1
             failureThreshold: 5
+          volumeMounts:
+            - mountPath: /etc/ers/security.json
+              name: server-config
+              subPath: security.json
+            - mountPath: /usr/local/keys
+              readOnly: true
+              name: server-keys
+      volumes:
+        - name: server-config
+          configMap:
+            name: server-config
+            items:
+              - key: security.json
+                path: security.json
+        - name: server-keys
+          secret:
+            secretName: ers-keys

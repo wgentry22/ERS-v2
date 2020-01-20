@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: packetbeat
+  namespace: kube-system
+  labels:
+    app: es-cluster
+    tier: apm
+spec:
+  selector:
+    matchLabels:
+      app: es-cluster
+      tier: apm
+  template:
+    metadata:
+      labels:
+        app: es-cluster
+        tier: apm
+    spec:
+      serviceAccountName: packetbeat
+      terminationGracePeriodSeconds: 30
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      containers:
+        - name: packetbeat
+          image: docker.elastic.co/beats/packetbeat:7.4.2
+          imagePullPolicy: Always
+          args: [
+            "-c", "/etc/packetbeat.yml",
+            "-e",
+          ]
+          securityContext:
+            runAsUser: 0
+            capabilities:
+              add:
+                - IPC_LOCK
+                - SYS_RESOURCE
+                - NET_RAW
+                - NET_ADMIN
+          volumeMounts:
+            - name: config
+              mountPath: /etc/packetbeat.yml
+              readOnly: true
+              subPath: packetbeat.yml
+            - name: data
+              mountPath: /usr/share/packetbeat/data
+      volumes:
+        - name: config
+          configMap:
+            defaultMode: 0600
+            name: packetbeat-config
+        - name: data
+          emptyDir: {}

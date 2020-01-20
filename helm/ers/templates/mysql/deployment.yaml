@@ -71,9 +71,9 @@ spec:
                 - "-c"
                 - |
                   mysql -u ${MYSQL_USER} --password=${MYSQL_PASSWORD} -e 'SELECT 1'
-            successThreshold: 2
+            successThreshold: 1
             failureThreshold: 5
-            periodSeconds: 15
+            periodSeconds: 10
       volumes:
         - name: mysql-persistent-storage
           persistentVolumeClaim:

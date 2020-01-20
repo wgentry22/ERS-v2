@@ -1,5 +1,0 @@
-db:
-  user: ers-ngrx
-  password: Password123!
-  name: ers
-  useRandomRootPwd: "true"

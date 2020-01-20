@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: server-config
+data:
+  security.json: |
+    {
+      "signerKeyPath": "/usr/local/keys/ers-signer",
+      "verifyKeyPath": "/usr/local/keys/ers-verifier",
+      "roleHierarchy": ["ROLE_ADMIN", "ROLE_MANAGER", "ROLE_EMPLOYEE", "ROLE_ANONYMOUS"]
+    }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: server-env
+data:
+  ELASTIC_APM_SERVER_URL: {{ .Values.apm.url }}
+  ELASTIC_APM_SERVICE_NAME: {{ .Values.apm.serviceName }}
