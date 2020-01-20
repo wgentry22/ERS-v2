@@ -30,7 +30,7 @@ export class RegistrationEffects {
             return of(new AuthenticationFailureAction(message));
           }
         })
-      )
+      );
     })
   );
 
@@ -41,7 +41,7 @@ export class RegistrationEffects {
       return this.registrationService.checkUsernameAvailability(action.username).pipe(
         map(resp => new fromManager.UsernameAvailableAction()),
         catchError(err => of(new fromManager.UsernameIsNotAvailableAction()))
-      )
+      );
     })
-  )
+  );
 }

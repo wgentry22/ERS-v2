@@ -1,5 +1,5 @@
-import {createFeatureSelector, createSelector} from "@ngrx/store";
-import {UserActions, UserActionTypes} from "./user.actions";
+import {createFeatureSelector, createSelector} from '@ngrx/store';
+import {UserActions, UserActionTypes} from './user.actions';
 import * as fromRoot from '../../app.reducer';
 
 export interface State extends fromRoot.State {
@@ -18,17 +18,19 @@ export interface UserInfoState {
   email: string;
   department: string;
   position: string;
+  role: string;
 }
 
 const initialState: UserState = {
   isAuthenticated: false,
   isAttemptingAuthentication: false,
-  authenticationErrorMessage: "",
+  authenticationErrorMessage: '',
   user: {
-    username: "",
-    email: "",
-    position: "",
-    department: ""
+    username: '',
+    email: '',
+    position: '',
+    department: '',
+    role: 'ROLE_ANONYMOUS'
   }
 };
 

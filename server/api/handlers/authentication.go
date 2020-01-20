@@ -3,7 +3,9 @@ package handlers
 import (
   "encoding/json"
   "github.com/wgentry2/ers-ngrx/server/internal/domain/dto"
+  "github.com/wgentry2/ers-ngrx/server/internal/logger"
   "github.com/wgentry2/ers-ngrx/server/service"
+  "go.elastic.co/apm"
   "io/ioutil"
   "net/http"
 )
@@ -18,6 +20,8 @@ type AuthenticationHandler interface {
 }
 
 func (handler *authHandler) AttemptAuthentication(w http.ResponseWriter, r *http.Request) {
+  span, ctx := apm.StartSpan(r.Context(), "attemptAuthentication", "custom")
+  defer span.End()
   body, err := ioutil.ReadAll(r.Body)
   if err != nil {
     w.WriteHeader(http.StatusBadRequest)
@@ -29,11 +33,8 @@ func (handler *authHandler) AttemptAuthentication(w http.ResponseWriter, r *http
     w.WriteHeader(http.StatusUnprocessableEntity)
     return
   }
-  token := handler.loginService.AttemptAuthentication(r.Context(), form)
-  if r := recover(); r != nil {
-    w.WriteHeader(http.StatusUnauthorized)
-    return
-  }
+  defer recoverFromInvalidLoginAttempt(form, w, r)
+  token := handler.loginService.AttemptAuthentication(ctx, form)
   w.Header().Set("Content-Type", "application/json")
   json.NewEncoder(w).Encode(&token)
 }
@@ -44,4 +45,13 @@ func (handler *authHandler) Path() string {
 
 func Authentication() AuthenticationHandler {
   return &authHandler{loginService:service.Login()}
+}
+
+func recoverFromInvalidLoginAttempt(form dto.LoginForm, w http.ResponseWriter, req *http.Request) {
+  if r := recover(); r != nil {
+    logger.WithContext(req.Context()).Infof("Failed to find user with credentials %+v", form)
+    w.WriteHeader(http.StatusBadRequest)
+    json.NewEncoder(w).Encode(&dto.Message{Message: "Invalid Credentials"})
+    return
+  }
 }

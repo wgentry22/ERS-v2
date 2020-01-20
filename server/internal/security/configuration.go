@@ -2,7 +2,7 @@ package security
 
 import (
   "encoding/json"
-  "github.com/sirupsen/logrus"
+  "github.com/wgentry2/ers-ngrx/server/internal/logger"
   "io/ioutil"
   "os"
 )
@@ -13,8 +13,9 @@ var (
 )
 
 type Configuration struct {
-  KeyPath string `json:"keyPath"`
-  Roles []string `json:"roleHierarchy"`
+  SignerKeyPath string   `json:"signerKeyPath"`
+  VerifierKeyPath string `json:"verifyKeyPath"`
+  Roles         []string `json:"roleHierarchy"`
   RoleHierarchy map[string][]string
 }
 
@@ -36,7 +37,7 @@ func init() {
 
 func handleErrorIfFileNotFound(filepath string, err error) {
   if err != nil {
-    logrus.Warnf("Failed to locate security.json at [%s] - %+v\n", filepath, err)
+    logger.Get().Warnf("Failed to locate security.json at [%s] - %+v\n", filepath, err)
     panic(err)
   }
 }
@@ -44,7 +45,7 @@ func handleErrorIfFileNotFound(filepath string, err error) {
 func handleJsonUnmarshal(data []byte, kind interface{}) {
   err := json.Unmarshal(data, &kind)
   if err != nil {
-    logrus.Warnf("Unable to unmarshal security configuration JSON - %+v\n", err)
+    logger.Get().Warnf("Unable to unmarshal security configuration JSON - %+v\n", err)
     panic(err)
   }
 }

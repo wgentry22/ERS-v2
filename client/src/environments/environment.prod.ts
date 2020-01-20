@@ -1,4 +1,4 @@
-const serverRoot: string = `http://${window.location.host}:${window.location.port}/server`;
+const serverRoot = `http://${window.location.host}:${window.location.port}/app/api`;
 export const environment = {
   corsUrl: `http://${window.location.host}:${window.location.port}/client`,
   production: true,

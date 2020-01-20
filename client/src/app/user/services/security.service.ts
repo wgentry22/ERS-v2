@@ -1,19 +1,25 @@
 import {Injectable} from '@angular/core';
 import config from '../../../assets/security.json';
-import {SecurityConfig} from '../../../njson-typings';
+import {UserInfoState} from '../state/user.reducer';
 
 @Injectable({
   providedIn: 'root'
 })
-export class SecurityConfigService {
+export class SecurityService {
 
   private roleHierarchy: RoleHierarchy;
 
   constructor() {
-    this.roleHierarchy = new RoleHierarchyImpl(config);
+    this.roleHierarchy = new RoleHierarchyImpl(config.roleHierarchy);
   }
 
+  isManagerReachable(userInfo: UserInfoState): boolean {
+    return userInfo && userInfo.role && this.roleHierarchy.isRoleReachable(userInfo.role, 'ROLE_MANAGER');
+  }
 
+  isValid(userInfo: UserInfoState): boolean {
+    return userInfo && userInfo.role && this.roleHierarchy.isRoleReachable(userInfo.role, 'ROLE_EMPLOYEE');
+  }
 }
 
 interface RoleHierarchy {

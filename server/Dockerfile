@@ -1,4 +1,4 @@
-FROM golang:1.10 AS builder
+FROM golang:latest AS builder
 
 # Download and install the latest release of dep
 ADD https://github.com/golang/dep/releases/download/v0.5.4/dep-linux-amd64 /usr/bin/dep

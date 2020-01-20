@@ -2,9 +2,9 @@ package dao
 
 import (
   "context"
-  "github.com/sirupsen/logrus"
   "github.com/wgentry2/ers-ngrx/server/internal/domain/dto"
   "github.com/wgentry2/ers-ngrx/server/internal/domain/model"
+  "github.com/wgentry2/ers-ngrx/server/internal/logger"
   "github.com/wgentry2/ers-ngrx/server/internal/token"
 )
 
@@ -12,18 +12,19 @@ type registrationDao struct {}
 
 type RegistrationDao interface {
   AttemptRegistration(ctx context.Context, user model.User, userDetails model.UserDetails) dto.RegistrationResponse
+  UsernameAvailabilityCheck(ctx context.Context, username string) bool
 }
 
 func (dao *registrationDao) AttemptRegistration(ctx context.Context, user model.User, userDetails model.UserDetails) dto.RegistrationResponse {
   if err := withContext(ctx).Save(&user).Error; err != nil {
-    logrus.Warnf("Failed to register user with username %s: %+v", user.Username, err)
+    logger.WithContext(ctx).Warnf("Failed to register user with username %s: %+v", user.Username, err)
     return dto.Failure(user.Username)
   }
   userDetails.UserId = user.ID
   userDetails.User = user
   
   if err := withContext(ctx).Save(&userDetails).Error; err != nil {
-    logrus.Warnf("Failed to save user details for username %s: %+v", user.Username, err)
+    logger.WithContext(ctx).Warnf("Failed to save user details for username %s: %+v", user.Username, err)
     return dto.Failure(user.Username)
   }
   
@@ -34,11 +35,20 @@ func (dao *registrationDao) AttemptRegistration(ctx context.Context, user model.
   }
 
   if err := withContext(ctx).Save(&role).Error; err != nil {
-    logrus.Warnf("Failed to save role for user with username %s: %+v", user.Username, err)
+    logger.WithContext(ctx).Warnf("Failed to save role for user with username %s: %+v", user.Username, err)
     return dto.Failure(user.Username)
   }
 
   return dto.Success(user.Username)
+}
+
+func (dao *registrationDao) UsernameAvailabilityCheck(ctx context.Context, username string) bool {
+  var user model.User
+  var count int
+  if withContext(ctx).Find(&user, "username = ?", username).Count(&count); count == 0 {
+    return true
+  }
+  return false
 }
 
 func determineRole(details model.UserDetails) string {

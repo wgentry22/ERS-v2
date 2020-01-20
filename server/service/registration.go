@@ -7,6 +7,7 @@ import (
   "github.com/wgentry2/ers-ngrx/server/dao"
   "github.com/wgentry2/ers-ngrx/server/internal/domain/dto"
   "github.com/wgentry2/ers-ngrx/server/internal/domain/model"
+  "github.com/wgentry2/ers-ngrx/server/internal/logger"
   "golang.org/x/crypto/bcrypt"
   "strings"
 )
@@ -17,6 +18,7 @@ type registrationService struct {
 
 type RegistrationService interface {
   AttemptRegistration(ctx context.Context, form dto.RegistrationForm) dto.RegistrationResponse
+  UsernameAvailabilityCheck(ctx context.Context, username string) bool
 }
 
 func (service *registrationService) AttemptRegistration(ctx context.Context, form dto.RegistrationForm) dto.RegistrationResponse {
@@ -36,8 +38,12 @@ func (service *registrationService) AttemptRegistration(ctx context.Context, for
     FirstName:  form.Firstname,
     LastName:   form.Lastname,
   }
-
+  logger.WithContext(ctx).Infof("Attempting to save user %+v with details %+v", user, userDetails)
   return service.registrationDao.AttemptRegistration(ctx, user, userDetails)
+}
+
+func (service *registrationService) UsernameAvailabilityCheck(ctx context.Context, username string) bool {
+  return service.registrationDao.UsernameAvailabilityCheck(ctx, username)
 }
 
 func formatEmail(form dto.RegistrationForm) string {

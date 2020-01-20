@@ -4,9 +4,10 @@ import (
   "context"
   "errors"
   "fmt"
-  "github.com/sirupsen/logrus"
+  "github.com/wgentry2/ers-ngrx/server/api/middleware"
   "github.com/wgentry2/ers-ngrx/server/internal/domain/dto"
   "github.com/wgentry2/ers-ngrx/server/internal/domain/model"
+  "github.com/wgentry2/ers-ngrx/server/internal/logger"
   "time"
 )
 
@@ -23,7 +24,7 @@ type ReimbursementDao interface {
 func (dao *reimbursementDao) FindAll(ctx context.Context) []dto.ReimbursementDto {
   var reimbursements []dto.ReimbursementDto
   if err := withContext(ctx).Table("reimbursements").Find(&reimbursements).Error; err != nil {
-    logrus.Infof("Failed to read all reimbursements: %+v", err)
+    logger.WithContext(ctx).Infof("Failed to read all reimbursements: %+v", err)
     return make([]dto.ReimbursementDto, 0)
   }
   return reimbursements
@@ -31,19 +32,24 @@ func (dao *reimbursementDao) FindAll(ctx context.Context) []dto.ReimbursementDto
 
 func (dao *reimbursementDao) FindMine(ctx context.Context) []dto.ReimbursementDto {
   var reimbursements []dto.ReimbursementDto
-  username, _ := ctx.Value("username").(string)
+  info, _ := ctx.Value("info").(middleware.TokenContext)
+  username, usernameOk := info.Get("username")
   if err := withContext(ctx).Table("reimbursements").Joins("INNER JOIN users on users.id = reimbursements.user_id AND users.username = ?", username).Find(&reimbursements).Error; err != nil {
-    logrus.Info("Failed to execute FIND MINE query for %s", username)
+    logger.WithContext(ctx).Info("Failed to execute FIND MINE query for %s", username)
     return make([]dto.ReimbursementDto, 0)
   }
-  return reimbursements
+  if usernameOk {
+    return reimbursements
+  }
+  panic(fmt.Errorf("Failed to find username in Token Context"))
 }
 
 func (dao *reimbursementDao) Create(ctx context.Context, form dto.ReimbursementForm) dto.ReimbursementDto {
-  username, _ := ctx.Value("username").(string)
+  info, _ := ctx.Value("info").(middleware.TokenContext)
+  username, usernameOk := info.Get("username")
   var user model.User
-  if err := withContext(ctx).Find(&user, "username = ?", username).Error; err != nil {
-    logrus.Infof("Unable to create reimbursement: Failed to find user associated with %s", username)
+  if err := withContext(ctx).Find(&user, "username = ?", username).Error; err != nil || !usernameOk{
+    logger.WithContext(ctx).Infof("Unable to create reimbursement: Failed to find user associated with %s", username)
     panic(errors.New(fmt.Sprintf("Failed to find user associated with username %s", username)))
   }
   reimbursement := model.Reimbursement{
@@ -58,7 +64,7 @@ func (dao *reimbursementDao) Create(ctx context.Context, form dto.ReimbursementF
   }
   
   if err := withContext(ctx).Save(&reimbursement).Error; err != nil {
-    logrus.Infof("Failed to create reimbursement: %+v", reimbursement)
+    logger.WithContext(ctx).Infof("Failed to create reimbursement: %+v", reimbursement)
     panic(err)
   }
   
@@ -78,7 +84,7 @@ func (dao *reimbursementDao) Create(ctx context.Context, form dto.ReimbursementF
 func (dao *reimbursementDao) Update(ctx context.Context, dto dto.ReimbursementDto) dto.ReimbursementDto {
   var reimbursement model.Reimbursement
   if err := withContext(ctx).Find(&reimbursement, "id = ?", dto.Id).Error; err != nil {
-    logrus.Infof("Failed to locate reimbursement with id [%d] to update", dto.Id)
+    logger.WithContext(ctx).Infof("Failed to locate reimbursement with id [%d] to update", dto.Id)
     panic(err)
   }
   if err := withContext(ctx).Model(&reimbursement).Updates(model.Reimbursement{
@@ -87,7 +93,7 @@ func (dao *reimbursementDao) Update(ctx context.Context, dto dto.ReimbursementDt
     Type:        dto.Type,
     ExpenseDate: dto.ExpenseDate,
   }).Error; err != nil {
-    logrus.Infof("Failed to update reimbursement: %+v", reimbursement)
+    logger.WithContext(ctx).Infof("Failed to update reimbursement: %+v", reimbursement)
     panic(err)
   }
   return dto
@@ -97,7 +103,7 @@ func (dao *reimbursementDao) Update(ctx context.Context, dto dto.ReimbursementDt
 func (dao *reimbursementDao) Resolve(ctx context.Context, dto dto.ReimbursementDto) dto.ReimbursementDto {
   var reimbursement model.Reimbursement
   if err := withContext(ctx).Find(&reimbursement, "id = ?", dto.Id).Error; err != nil {
-    logrus.Infof("Failed to locate reimbursement with id [%d] to update", dto.Id)
+    logger.WithContext(ctx).Infof("Failed to locate reimbursement with id [%d] to update", dto.Id)
     panic(err)
   }
   username, ok := ctx.Value("username").(string)
@@ -109,7 +115,7 @@ func (dao *reimbursementDao) Resolve(ctx context.Context, dto dto.ReimbursementD
     ResolutionDate: time.Now().Unix(),
     Status:      dto.Status,
   }).Error; err != nil && ok {
-    logrus.Infof("Failed to update %s's reimbursement: %+v", username, reimbursement)
+    logger.WithContext(ctx).Infof("Failed to update %s's reimbursement: %+v", username, reimbursement)
     panic(err)
   }
   return dto

@@ -1,4 +1,5 @@
 {
-  "keyPath": "/usr/local/keys/ers",
-  "roleHierarchy": ["ROLE_MANAGER", "ROLE_EMPLOYEE", "ROLE_ANONYMOUS"]
+  "signerKeyPath": "/usr/local/keys/ers.pem",
+  "verifyKeyPath": "/usr/local/keys/ers-verifier.pem",
+  "roleHierarchy": ["ROLE_ADMIN" ,"ROLE_MANAGER", "ROLE_EMPLOYEE", "ROLE_ANONYMOUS"]
 }

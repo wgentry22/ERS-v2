@@ -20,7 +20,7 @@ func (handler *userInfoHandler) Path() string {
 }
 
 func (handler *userInfoHandler) RetrieveUserInfo(w http.ResponseWriter, r *http.Request) {
-  defer recoverFromUsernameNotInRequestContext(w)
+  defer recoverTokenContextNotInRequestContext(w, r)
   details := handler.userInfoService.RetrieveUserInfo(r.Context())
   w.Header().Set("Content-Type", "application/json")
   json.NewEncoder(w).Encode(&details)

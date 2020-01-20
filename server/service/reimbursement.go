@@ -3,6 +3,7 @@ package service
 import (
   "context"
   "fmt"
+  "github.com/wgentry2/ers-ngrx/server/api/middleware"
   "github.com/wgentry2/ers-ngrx/server/dao"
   "github.com/wgentry2/ers-ngrx/server/internal/domain/dto"
   "go.elastic.co/apm"
@@ -27,7 +28,7 @@ func (service *reimbursementService) FindAll(ctx context.Context) []dto.Reimburs
 }
 
 func (service *reimbursementService) FindMine(ctx context.Context) []dto.ReimbursementDto {
-  _, ok := ctx.Value("username").(string)
+  _, ok := ctx.Value("info").(middleware.TokenContext)
   if ok {
     span, context := apm.StartSpan(ctx, "findMyReimbursements", "custom")
     defer span.End()
@@ -38,13 +39,13 @@ func (service *reimbursementService) FindMine(ctx context.Context) []dto.Reimbur
 }
 
 func (service *reimbursementService) Create(ctx context.Context, form dto.ReimbursementForm) dto.ReimbursementDto {
-  _, ok := ctx.Value("username").(string)
+  _, ok := ctx.Value("info").(middleware.TokenContext)
   if ok {
     span, context := apm.StartSpan(ctx, "createReimbursement", "custom")
     defer span.End()
     return service.reimDao.Create(context, form)
   } else {
-    panic(fmt.Errorf("Failed to find username in request context"))
+    panic(fmt.Errorf("Failed to find username in token context"))
   }
 }
 
@@ -55,15 +56,17 @@ func (service *reimbursementService) Update(ctx context.Context, dto dto.Reimbur
 }
 
 func (service *reimbursementService) Resolve(ctx context.Context, dto dto.ReimbursementDto) dto.ReimbursementDto {
-  username, ok := ctx.Value("username").(string)
+  info, ok := ctx.Value("info").(middleware.TokenContext)
   if ok {
-    if dto.CreatedBy == username {
-      panic(fmt.Errorf("This reimbursement requires another manager to resolve as %s created it", dto.CreatedBy))
+    username, usernameOk := info.Get("username")
+    if usernameOk {
+      if dto.CreatedBy == username {
+        panic(fmt.Errorf("This reimbursement requires another manager to resolve as %s created it", dto.CreatedBy))
+      }
+      return service.reimDao.Resolve(ctx, dto)
     }
-    return service.reimDao.Resolve(ctx, dto)
-  } else {
-    panic(fmt.Errorf("Failed to find username in request context"))
   }
+  panic(fmt.Errorf("Failed to find username in request context"))
 }
 
 func Reimbursement() ReimbursementService {

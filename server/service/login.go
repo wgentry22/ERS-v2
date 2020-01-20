@@ -5,6 +5,7 @@ import (
   "github.com/wgentry2/ers-ngrx/server/dao"
   "github.com/wgentry2/ers-ngrx/server/internal/domain/dto"
   "github.com/wgentry2/ers-ngrx/server/internal/token"
+  "go.elastic.co/apm"
 )
 
 type loginService struct {
@@ -17,7 +18,9 @@ type LoginService interface {
 
 func (service *loginService) AttemptAuthentication(ctx context.Context, form dto.LoginForm) dto.Jwt {
   username, role := service.loginDao.AttemptAuthentication(ctx, form)
-  return token.Generate(username, role)
+  span, context := apm.StartSpan(ctx, "generateJwt", "custom")
+  defer span.End()
+  return token.Generate(username, role, context)
 }
 
 func Login() LoginService {

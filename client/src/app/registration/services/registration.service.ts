@@ -1,9 +1,9 @@
-import {Injectable} from "@angular/core";
-import {HttpClient} from "@angular/common/http";
-import {RegistrationForm} from "../../domain/dto/registration-form";
-import {Observable} from "rxjs";
-import {Message} from "../../domain/dto/message.dto";
-import {environment} from "../../../environments/environment";
+import {Injectable} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {RegistrationForm} from '../../domain/dto/registration-form';
+import {Observable} from 'rxjs';
+import {Message} from '../../domain/dto/message.dto';
+import {environment} from '../../../environments/environment';
 
 @Injectable()
 export class RegistrationService {
@@ -17,6 +17,6 @@ export class RegistrationService {
   }
 
   checkUsernameAvailability(username: string) {
-    return this.http.get(environment.initialRegistration, { params: { username }, observe: "response" })
+    return this.http.get(environment.initialRegistration, { params: { username }, observe: 'response' });
   }
 }

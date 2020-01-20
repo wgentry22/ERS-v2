@@ -1,12 +1,13 @@
 package token
 
 import (
+  "context"
   "crypto/rsa"
   "errors"
   "fmt"
   "github.com/dgrijalva/jwt-go"
-  "github.com/sirupsen/logrus"
   "github.com/wgentry2/ers-ngrx/server/internal/domain/dto"
+  "github.com/wgentry2/ers-ngrx/server/internal/logger"
   "github.com/wgentry2/ers-ngrx/server/internal/security"
   "io/ioutil"
   "time"
@@ -33,77 +34,92 @@ type ErsClaim struct {
 }
 
 func init() {
-  keyPair = getKeyPair(config.KeyPath)
+  keyPair = KeyPair{
+   signer:   getSignerKey(),
+   verifier: getVerifierKey(),
+  }
+  testSignAndVerify()
 }
 
-func getKeyPair(filepath string) KeyPair {
-  pubBytes, err := ioutil.ReadFile(fmt.Sprintf("%s.pub", filepath))
+func getSignerKey() *rsa.PrivateKey {
+  pem, err := ioutil.ReadFile(config.SignerKeyPath)
   if err != nil {
-    logrus.Warnf("Failed to read public key file at %s", filepath)
+    logger.Get().Warnf("Failed to read signer key PEM file: %+v\n", err)
     panic(err)
   }
-  privBytes, err := ioutil.ReadFile(fmt.Sprintf("%s.rsa", filepath))
+  signer, err := jwt.ParseRSAPrivateKeyFromPEM(pem)
   if err != nil {
-    logrus.Warnf("Failed to read private key file at %s", filepath)
+    logger.Get().Warnf("Failed to parse private key from file at %s: %+v\n", config.VerifierKeyPath, err)
     panic(err)
   }
-  verifier, err := jwt.ParseRSAPublicKeyFromPEM(pubBytes)
-  if err != nil {
-   logrus.Warnf("Failed to parse public key from file at %s", filepath)
-   panic(err)
-  }
-  signer, err := jwt.ParseRSAPrivateKeyFromPEM(privBytes)
-  if err != nil {
-   logrus.Warnf("Failed to parse private key file at %s", filepath)
-   panic(err)
-  }
-  return KeyPair{
-   signer: signer,
-   verifier: verifier,
-  }
+  logger.Get().Infof("Successfully read private key from %s!", config.SignerKeyPath)
+  return signer
 }
 
-func Generate(username, role string) dto.Jwt {
+func getVerifierKey() *rsa.PublicKey {
+  pem, err := ioutil.ReadFile(config.VerifierKeyPath)
+  if err != nil {
+    logger.Get().Warnf("Failed to read verify key PEM file: %+v\n", err)
+    panic(err)
+  }
+  verifier, err := jwt.ParseRSAPublicKeyFromPEM(pem)
+  if err != nil {
+    logger.Get().Warnf("Failed to parse public key from file at %s: %+v\n", config.VerifierKeyPath, err)
+    panic(err)
+  }
+  logger.Get().Infof("Successfully read public key from %s!", config.VerifierKeyPath)
+  return verifier
+}
+
+func Generate(username, role string, ctx context.Context) dto.Jwt {
   if username == "" && role == "" {
     panic(errors.New("Cannot generate JWT for empty credentials"))
   }
   claims := ErsClaim{
-    StandardClaims: jwt.StandardClaims{
-      ExpiresAt: time.Now().Add(15 * time.Minute).Unix(),
-      IssuedAt:  time.Now().Unix(),
-      Subject:   username,
-    },
-    Role:           role,
+   StandardClaims: jwt.StandardClaims{
+     ExpiresAt: time.Now().UTC().Add(1 * time.Hour).Unix(),
+     IssuedAt:  time.Now().UTC().Unix(),
+     Subject:   username,
+   },
+   Role:           role,
   }
 
   token := jwt.NewWithClaims(jwt.SigningMethodRS512, claims)
   tokenStr, err := token.SignedString(keyPair.signer)
   if err != nil {
-    logrus.Warnf("Failed to sign JWT: %+v", err)
-    panic(err)
+   logger.WithContext(ctx).Warnf("Failed to sign JWT: %+v", err)
+   panic(err)
   }
   return dto.Jwt{Token:tokenStr}
 }
 
-func Parse(tokenString string) (string, string) {
+func Parse(tokenString string, ctx context.Context) (string, string) {
   tkn, err := jwt.ParseWithClaims(tokenString, &ErsClaim{}, func (token *jwt.Token) (interface{}, error) {
     if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
       return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
     }
+
     return keyPair.verifier, nil
   })
+
   if err != nil {
-    logrus.Warnf("Failed to parse JWT", err)
-    panic(errors.New("Failed to parse JWT"))
+    logger.WithContext(ctx).Warnf("Failed to parse JWT", err)
+    panic(err)
   }
-  if tkn.Valid {
-    if claims, ok := tkn.Claims.(*ErsClaim); ok {
-      return claims.Subject, claims.Role
-    } else {
-      panic(errors.New("Claims were not of type ErsClaim"))
-    }
+
+  if claims, ok := tkn.Claims.(*ErsClaim); ok {
+    return claims.Subject, claims.Role
   } else {
-    panic(errors.New("Token was not valid"))
+    panic(errors.New("Claims were not of type ErsClaim"))
   }
 }
 
+
+func testSignAndVerify() {
+  token := Generate("Test", "Test", context.Background())
+  username, role := Parse(token.Token, context.Background())
+  if username != "Test" && role != "Test" {
+    panic(fmt.Errorf("Failed to sign and verify test JWT."))
+  }
+  logger.Get().Info("Test sign/verify JWT is successful!")
+}

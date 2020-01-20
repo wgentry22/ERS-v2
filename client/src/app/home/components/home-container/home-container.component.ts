@@ -1,11 +1,11 @@
 import {Component, OnInit} from '@angular/core';
-import * as fromAuth from '../../../user/state/user.reducer'
-import {UserInfoState} from '../../../user/state/user.reducer'
-import {select, Store} from "@ngrx/store";
-import {Observable} from "rxjs";
-import {childRouteAnimations, dramaticEntrance} from "../../../app.animations";
-import {CookieService} from "ngx-cookie-service";
-import {Router, RouterOutlet} from "@angular/router";
+import * as fromAuth from '../../../user/state/user.reducer';
+import {UserInfoState} from '../../../user/state/user.reducer';
+import {select, Store} from '@ngrx/store';
+import {Observable} from 'rxjs';
+import {childRouteAnimations, dramaticEntrance} from '../../../app.animations';
+import {CookieService} from 'ngx-cookie-service';
+import {Router, RouterOutlet} from '@angular/router';
 
 @Component({
   selector: 'app-home-container',
@@ -20,19 +20,19 @@ export class HomeContainerComponent implements OnInit {
   constructor(
     private store: Store<fromAuth.UserInfoState>,
     private cookieService: CookieService,
-    private router: Router
+    private router: Router,
   ) { }
 
   ngOnInit() {
-    this.currentUser$ = this.store.pipe(select(fromAuth.currentUserInfoState))
+    this.currentUser$ = this.store.pipe(select(fromAuth.currentUserInfoState));
   }
 
   handleLogout() {
-    this.router.navigateByUrl("/login");
-    this.cookieService.delete("api_token");
+    this.router.navigateByUrl('/login');
+    this.cookieService.delete('api_token');
   }
 
   prepareChildRouteAnimation(outlet: RouterOutlet) {
-    return outlet && outlet.activatedRouteData && outlet.activatedRouteData["animation"];
+    return outlet && outlet.activatedRouteData && outlet.activatedRouteData.animation;
   }
 }

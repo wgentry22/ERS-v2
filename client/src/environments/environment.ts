@@ -1,9 +1,9 @@
 // This file can be replaced during build by using the `fileReplacements` array.
 // `ng build --prod` replaces `environment.ts` with `environment.prod.ts`.
 // The list of file replacements can be found in `angular.json`.
-const serverRoot: string = "http://localhost:8080";
+const serverRoot = 'http://localhost:8080';
 export const environment = {
-  corsUrl: "http://localhost:4200",
+  corsUrl: 'http://localhost:4200',
   production: false,
   login: `${serverRoot}/login`,
   initialRegistration: `${serverRoot}/register`,

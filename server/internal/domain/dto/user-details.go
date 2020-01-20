@@ -5,4 +5,5 @@ type UserDetails struct {
   Email string `json:"email"`
   Department string `json:"department"`
   Position string `json:"position"`
+  Role string `json:"role"`
 }

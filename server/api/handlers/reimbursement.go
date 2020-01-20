@@ -2,9 +2,10 @@ package handlers
 
 import (
   "encoding/json"
-  "github.com/sirupsen/logrus"
   "github.com/wgentry2/ers-ngrx/server/internal/domain/dto"
+  "github.com/wgentry2/ers-ngrx/server/internal/logger"
   "github.com/wgentry2/ers-ngrx/server/service"
+  "go.elastic.co/apm"
   "io/ioutil"
   "net/http"
 )
@@ -27,7 +28,9 @@ func (handler *reimbursementHandler) Path() string {
 }
 
 func (handler *reimbursementHandler) FindAll(w http.ResponseWriter, r *http.Request) {
-  reimbursements := handler.reimbursementService.FindAll(r.Context())
+  span, ctx := apm.StartSpan(r.Context(), "findAllReimbursements", "custom")
+  defer span.End()
+  reimbursements := handler.reimbursementService.FindAll(ctx)
   if len(reimbursements) == 0 {
     w.WriteHeader(http.StatusNoContent)
   } else {
@@ -37,8 +40,10 @@ func (handler *reimbursementHandler) FindAll(w http.ResponseWriter, r *http.Requ
 }
 
 func (handler *reimbursementHandler) FindMine(w http.ResponseWriter, r *http.Request) {
-  defer recoverFromUsernameNotInRequestContext(w)
-  reimbursements := handler.reimbursementService.FindMine(r.Context())
+  span, ctx := apm.StartSpan(r.Context(), "findMyReimbursements", "custom")
+  defer span.End()
+  defer recoverTokenContextNotInRequestContext(w, r)
+  reimbursements := handler.reimbursementService.FindMine(ctx)
   if len(reimbursements) == 0 {
     w.WriteHeader(http.StatusNoContent)
   } else {
@@ -48,19 +53,21 @@ func (handler *reimbursementHandler) FindMine(w http.ResponseWriter, r *http.Req
 }
 
 func (handler *reimbursementHandler) Create(w http.ResponseWriter, r *http.Request) {
-  defer recoverFromUsernameNotInRequestContext(w)
+  span, ctx := apm.StartSpan(r.Context(), "createReimbursement", "custom")
+  defer span.End()
+  defer recoverTokenContextNotInRequestContext(w, r)
   body, err := ioutil.ReadAll(r.Body)
   if err != nil {
-    logrus.Info("Failed to read request body")
+    logger.WithContext(ctx).Info("Failed to read request body")
     w.WriteHeader(http.StatusBadRequest)
   } else {
     var form dto.ReimbursementForm
     err := json.Unmarshal(body, &form)
     if err != nil {
-      logrus.Infof("Failed to marshal request body into dto.ReimbursementForm: %+v\n", err)
+      logger.WithContext(ctx).Infof("Failed to marshal request body into dto.ReimbursementForm: %+v\n", err)
       w.WriteHeader(http.StatusUnprocessableEntity)
     } else {
-      created := handler.reimbursementService.Create(r.Context(), form)
+      created := handler.reimbursementService.Create(ctx, form)
       w.Header().Set("Content-Type", "application/json")
       json.NewEncoder(w).Encode(&created)
     }
@@ -68,19 +75,21 @@ func (handler *reimbursementHandler) Create(w http.ResponseWriter, r *http.Reque
 }
 
 func (handler *reimbursementHandler) Update(w http.ResponseWriter, r *http.Request) {
-  defer recoverFromUsernameNotInRequestContext(w)
+  span, ctx := apm.StartSpan(r.Context(), "updateReimbursement", "custom")
+  defer span.End()
+  defer recoverTokenContextNotInRequestContext(w, r)
   body, err := ioutil.ReadAll(r.Body)
   if err != nil {
-    logrus.Info("Failed to read request body")
+    logger.WithContext(ctx).Info("Failed to read request body")
     w.WriteHeader(http.StatusBadRequest)
   } else {
     var dto dto.ReimbursementDto
     err := json.Unmarshal(body, &dto)
     if err != nil {
-      logrus.Info("Failed to marshal request body into dto.ReimbursementDto")
+      logger.WithContext(ctx).Info("Failed to marshal request body into dto.ReimbursementDto")
       w.WriteHeader(http.StatusUnprocessableEntity)
     } else {
-      updated := handler.reimbursementService.Update(r.Context(), dto)
+      updated := handler.reimbursementService.Update(ctx, dto)
       w.Header().Set("Content-Type", "application/json")
       json.NewEncoder(w).Encode(&updated)
     }
@@ -88,28 +97,30 @@ func (handler *reimbursementHandler) Update(w http.ResponseWriter, r *http.Reque
 }
 
 func (handler *reimbursementHandler) Resolve(w http.ResponseWriter, r *http.Request) {
-  defer recoverFromUsernameNotInRequestContext(w)
+  span, ctx := apm.StartSpan(r.Context(), "resolveReimbursement", "custom")
+  defer span.End()
+  defer recoverTokenContextNotInRequestContext(w, r)
   body, err := ioutil.ReadAll(r.Body)
   if err != nil {
-    logrus.Info("Failed to read request body")
+    logger.WithContext(r.Context()).Info("Failed to read request body")
     w.WriteHeader(http.StatusBadRequest)
   } else {
     var dto dto.ReimbursementDto
     err := json.Unmarshal(body, &dto)
     if err != nil {
-      logrus.Info("Failed to marshal request body into dto.ReimbursementDto")
+      logger.WithContext(ctx).Info("Failed to marshal request body into dto.ReimbursementDto")
       w.WriteHeader(http.StatusUnprocessableEntity)
     } else {
-      updated := handler.reimbursementService.Resolve(r.Context(), dto)
+      updated := handler.reimbursementService.Resolve(ctx, dto)
       w.Header().Set("Content-Type", "application/json")
       json.NewEncoder(w).Encode(&updated)
     }
   }
 }
 
-func recoverFromUsernameNotInRequestContext(w http.ResponseWriter) {
+func recoverTokenContextNotInRequestContext(w http.ResponseWriter, req *http.Request) {
   if r := recover(); r != nil {
-    logrus.Infof("Recovery from Username not in Request Context: %+v", r)
+    logger.WithContext(req.Context()).Infof("Recovery from Token Context not in Request Context: %+v", r)
     w.WriteHeader(http.StatusForbidden)
     return
   }
