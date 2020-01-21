@@ -43,12 +43,12 @@ func (dao *registrationDao) AttemptRegistration(ctx context.Context, user model.
 }
 
 func (dao *registrationDao) UsernameAvailabilityCheck(ctx context.Context, username string) bool {
-  var user model.User
-  var count int
-  if withContext(ctx).Find(&user, "username = ?", username).Count(&count); count == 0 {
-    return true
+  var users []model.User
+  if err := withContext(ctx).Select("username").Find(&users, "username = ?", username).Error; err != nil {
+    logger.WithContext(ctx).Infof("Failed to find all users by username")
+    panic(err)
   }
-  return false
+  return len(users) == 0
 }
 
 func determineRole(details model.UserDetails) string {

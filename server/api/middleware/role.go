@@ -18,7 +18,7 @@ func HasRole(desiredRole string, next http.HandlerFunc) http.HandlerFunc {
         next(w, r)
         return
       } else {
-        logger.WithContext(r.Context()).Infof("%s (with role %s) attempted to access protected endpoint", username, role)
+        logger.WithContext(r.Context()).Infof("%s (with %s) attempted to access protected endpoint", username, role)
         w.WriteHeader(http.StatusForbidden)
         return
       }

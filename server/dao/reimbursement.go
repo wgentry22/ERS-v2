@@ -22,12 +22,17 @@ type ReimbursementDao interface {
 }
 
 func (dao *reimbursementDao) FindAll(ctx context.Context) []dto.ReimbursementDto {
-  var reimbursements []dto.ReimbursementDto
-  if err := withContext(ctx).Table("reimbursements").Find(&reimbursements).Error; err != nil {
-    logger.WithContext(ctx).Infof("Failed to read all reimbursements: %+v", err)
-    return make([]dto.ReimbursementDto, 0)
+  info, _ := ctx.Value("info").(middleware.TokenContext)
+  username, usernameOk := info.Get("username")
+  if usernameOk {
+    var reimbursements []dto.ReimbursementDto
+    if err := withContext(ctx).Table("reimbursements").Joins("INNER JOIN users on users.id = reimbursements.user_id AND users.username = ?", username).Find(&reimbursements).Error; err != nil {
+      logger.WithContext(ctx).Infof("Failed to read all reimbursements: %+v", err)
+      return make([]dto.ReimbursementDto, 0)
+    }
+    return reimbursements
   }
-  return reimbursements
+  return make([]dto.ReimbursementDto, 0)
 }
 
 func (dao *reimbursementDao) FindMine(ctx context.Context) []dto.ReimbursementDto {

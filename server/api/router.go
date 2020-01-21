@@ -30,7 +30,8 @@ func init() {
 
 func bootstrap(router *mux.Router) {
   router.HandleFunc(authentication.Path(), middleware.Cors(authentication.AttemptAuthentication)).Methods(http.MethodPost, http.MethodOptions)
-  router.HandleFunc(registration.Path(), middleware.Cors(registration.AttemptRegistration)).Methods(http.MethodPost, http.MethodGet, http.MethodOptions)
+  router.HandleFunc(registration.Path(), middleware.Cors(registration.AttemptRegistration)).Methods(http.MethodPost, http.MethodOptions)
+  router.HandleFunc(registration.Path(), middleware.Cors(registration.UsernameAvailabilityCheck)).Methods(http.MethodGet)
   router.HandleFunc(healthCheck.Path(), healthCheck.HealthCheck).Methods(http.MethodGet)
   router.HandleFunc(healthCheck.Path(), awakeCheck.AwakeCheck).Methods(http.MethodGet)
   router.HandleFunc(reimbursement.Path() + "/mine", requiresRole(token.EmployeeRole, reimbursement.FindMine)).Methods(http.MethodGet, http.MethodOptions)
