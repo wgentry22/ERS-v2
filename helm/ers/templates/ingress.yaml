@@ -21,7 +21,3 @@ spec:
             backend:
               serviceName: ers-server-svc
               servicePort: server-svc-port
-          - path: /kibana(.*)
-            backend:
-              serviceName: kibana-svc
-              servicePort: kibana-svc-port

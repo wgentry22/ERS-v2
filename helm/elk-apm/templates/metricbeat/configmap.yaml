@@ -138,3 +138,10 @@ data:
 
       cpu.metrics:  [percentages, normalized_percentages, ticks]
       core.metrics: [percentages, ticks]
+
+    - module: mysql
+      metricsets:
+        - status
+      hosts: ["tcp(ers-mysql-svc.ers.svc.cluster.local:3306)"]
+      username: {{ .Values.db.user }}
+      password: {{ .Values.db.password }}
